@@ -11,14 +11,14 @@ secs = 0
 pattern = '{0:02d}:{1:02d}'
 
 def convert_grid(old_value):
-    old_max = 120
+    old_max = 60
     old_min = 0
     new_max = 600
     new_min = 0
     old_range = float(old_max - old_min)
     new_range = float(new_max - new_min)
     value = float(((float((old_value - old_min) * new_range)) / old_range)) + new_min
-    return float(value) + 5
+    return float(value) + 10
 
 class Participant:
     def __init__(self, mode):
@@ -31,25 +31,27 @@ class Participant:
         self.teach_display = ''
 
     def draw_participant(self, i, canvas):
-        x = (i * 20) + 100
+        x = (i * 40) + 100
         if self.mode == 'imitation':
-            start_time = (self.start_time * 5) + 5
-            observation = self.obs_time * 5
-            building = self.build_time * 5
-            testing = self.test_time * 5
+            start_time = (self.start_time * 15) + 10
+            observation = self.obs_time * 10
+            print "build", self.build_time
+            building = self.build_time * 10
+            testing = self.test_time * 10
+            print "testing", self.test_time
 
-            canvas.create_line(x, start_time, x, start_time + observation, width=10, fill="red")
-            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=10, fill="blue")
-            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=10, fill="yellow")
+            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red")
+            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue")
+            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow")
         elif self.mode == 'emulation' or self.mode == 'teaching':
-            start_time = (self.start_time * 5) + 5
-            learning = self.learning * 5
-            building = self.build_time * 5
-            testing = self.test_time * 5
-            teach_display = self.teach_display * 5
+            start_time = (self.start_time * 10) + 10
+            learning = self.learning * 10
+            building = self.build_time * 10
+            testing = self.test_time * 10
+            teach_display = self.teach_display * 10
 
             canvas.create_line(x, start_time, x, start_time + learning, width=10, fill="red")
-            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=10, fill="blue")
+            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue")
             canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=10, fill="yellow")
             canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=10, fill="pink")
 
@@ -180,7 +182,7 @@ class win:
                 timer[1] = 0
             timeString = pattern.format(timer[0], timer[1])          
             self.timeText.configure(text=timeString)
-            self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 5), 1024, ((convert_grid(secs) / 60) +5))
+            self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 10), 1024, ((convert_grid(secs) / 60) + 10))
         self.root.after(10, self.tick)
 
     def start(self):
@@ -201,7 +203,7 @@ class win:
         self.create_line()
 
     def create_line(self):
-        self.timerline = self.canvas.create_line(0, 5, 1024, 5, width=1, fill="green")
+        self.timerline = self.canvas.create_line(0, 10, 1024, 10, width=1, fill="green")
 
 
     def draw_grid(self):
