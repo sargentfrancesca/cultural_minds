@@ -33,27 +33,28 @@ class Participant:
     def draw_participant(self, i, canvas):
         x = (i * 40) + 100
         if self.mode == 'imitation':
-            start_time = (self.start_time * 15) + 10
+            start_time = self.start_time + 10
+            print "start time", start_time
             observation = self.obs_time * 10
-            print "build", self.build_time
+            # print "build", self.build_time
             building = self.build_time * 10
             testing = self.test_time * 10
-            print "testing", self.test_time
+            # print "testing", self.test_time
 
             canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red")
             canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue")
             canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow")
         elif self.mode == 'emulation' or self.mode == 'teaching':
-            start_time = (self.start_time * 10) + 10
+            start_time = self.start_time + 10
             learning = self.learning * 10
             building = self.build_time * 10
             testing = self.test_time * 10
             teach_display = self.teach_display * 10
 
-            canvas.create_line(x, start_time, x, start_time + learning, width=10, fill="red")
+            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red")
             canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue")
-            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=10, fill="yellow")
-            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=10, fill="pink")
+            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow")
+            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill="pink")
 
     def __repr__(self):
         return '< {} >'.format(self.mode)
@@ -71,12 +72,38 @@ class Mode:
             participant = self.create_participant(name, n, stages, remove_first, stagger)
             self.participants.append(participant)  
 
+    
+    def calculate_start(self, n, stagger):
+        # print stagger
+        # if len(stagger) == 1:
+        #     start_time = n * (stagger[0] * 10)
+        # else:
+        #     if n < len(stagger):
+        #         print "[n]", n
+        #         print "[stagger]", stagger[n]
+        #         print "[start time]", n * (stagger[n] * 10)
+        #         print "[stagger * 10]", (stagger[n] * 10)
+        #         start_time = stagger[n] * 10
+        #     else:
+        #         print "[n]", n
+        #         if n == len(stagger):
+        #             print "SAME"
+        #         # print "[stagger]", stagger[n]
+        #         # print "[start time]", n * (stagger[n] * 10)
+        #         # print "[stagger * 10]", (stagger[n] * 10)
+        #         start_time = n * (stagger[-1] * 10)
+        #     # if n-1 <= len(stagger):
+        #     #     print n, len(stagger)
+        #     #     start_time = n * (stagger[n] * 10)                
+        #     # else:
+        #     #     start_time = n * (stagger[-1] * 10)
+            
+        return n * (stagger[-1] * 10)
+
     def create_participant(self, name, n, stages, remove_first, stagger):
         participant = Participant(name)
-        if n == 0:
-            participant.start_time = 0
-        else:
-            participant.start_time = (n + 1) * stagger[0]
+        
+        participant.start_time = self.calculate_start(n, stagger)
         if n < remove_first and n >= 0:
             if 'observation' in stages:                                     
                 participant.obs_time = 0
@@ -96,6 +123,7 @@ class Mode:
 
         return participant
 
+
     def display_participants(self, canvas):
         for i, participant in enumerate(self.participants):
             participant.draw_participant(i, canvas)
@@ -103,9 +131,9 @@ class Mode:
     def __repr__(self):
         return self.name
 
-imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 12, 3, [2])
-emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 12, 3, [2])
-teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 10, 3, [2])
+imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 12, 3, [0, 2, 4])
+emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 12, 3, [4])
+teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 10, 3, [4])
 
 class win:
     def __init__(self):
@@ -212,7 +240,6 @@ class win:
                 line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="grey")
             else:
                 line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="#ecf0f1")
-            print self.canvas.coords(line)
 
     
 
