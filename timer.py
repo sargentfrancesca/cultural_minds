@@ -57,29 +57,37 @@ class Participant:
 
     def draw_participant(self, i, canvas):
         x = (i * 40) + 100
+        participant_type = (self.mode).capitalize()
+        participant_number = i + 1
+
+        print participant_type, participant_number
+
         if self.mode == 'imitation':
             start_time = self.start_time + 10
-            print "start time", start_time
             observation = self.obs_time * 5
-            # print "build", self.build_time
+            
             building = self.build_time * 5
             testing = self.test_time * 5
-            # print "testing", self.test_time
 
-            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red")
-            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue")
-            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow")
+
+            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red", tags=[participant_type, participant_number, "Observation"])
+            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue", tags=[participant_type, participant_number, "Building"])
+            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Testing"])
         elif self.mode == 'emulation' or self.mode == 'teaching':
             start_time = self.start_time + 10
             learning = self.learning * 5
             building = self.build_time * 5
             testing = self.test_time * 5
             teach_display = self.teach_display * 5
+            if self.mode=='emulation':
+                tag = 'Display'
+            else:
+                tag = 'Teaching'
 
-            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red")
-            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue")
-            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow")
-            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill="pink")
+            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags=[participant_type, participant_number, "Learning"])
+            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags=[participant_type, participant_number, "Building"])
+            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Testing"])
+            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill="pink", tags=[participant_type, participant_number, tag])
 
     def __repr__(self):
         return '< {} >'.format(self.mode)
@@ -105,7 +113,6 @@ class Mode:
         else:
             if participant_no < len(stagger):
                 start_time = stagger[participant_no] * 5
-        print start_time
         return start_time
 
     def create_participant(self, name, n, stages, remove_first, stagger):
@@ -223,6 +230,13 @@ class win:
             timeString = pattern.format(timer[0], timer[1])          
             self.timeText.configure(text=timeString)
             self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 10), 1024, ((convert_grid(secs) / 60) + 10))
+            timer_by_tag = self.canvas.find_withtag("timer")
+            timer_coords = self.canvas.coords(timer_by_tag)
+            closest = self.canvas.find_overlapping(timer_coords[0], timer_coords[1], timer_coords[2], timer_coords[3])
+            for close in closest:
+                print self.canvas.gettags(close)
+            # print closest
+            
         self.root.after(10, self.tick)
 
     def start(self):
@@ -243,7 +257,7 @@ class win:
         self.create_line()
 
     def create_line(self):
-        self.timerline = self.canvas.create_line(0, 10, 1024, 10, width=1, fill="green")
+        self.timerline = self.canvas.create_line(0, 10, 1024, 10, width=1, fill="green", tags="timer")
 
 
     def draw_grid(self):
