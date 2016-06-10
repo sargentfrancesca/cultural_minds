@@ -13,7 +13,7 @@ pattern = '{0:02d}:{1:02d}'
 def convert_grid(old_value):
     old_max = 60
     old_min = 0
-    new_max = 600
+    new_max = 300
     new_min = 0
     old_range = float(old_max - old_min)
     new_range = float(new_max - new_min)
@@ -35,10 +35,10 @@ class Participant:
         if self.mode == 'imitation':
             start_time = self.start_time + 10
             print "start time", start_time
-            observation = self.obs_time * 10
+            observation = self.obs_time * 5
             # print "build", self.build_time
-            building = self.build_time * 10
-            testing = self.test_time * 10
+            building = self.build_time * 5
+            testing = self.test_time * 5
             # print "testing", self.test_time
 
             canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red")
@@ -46,10 +46,10 @@ class Participant:
             canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow")
         elif self.mode == 'emulation' or self.mode == 'teaching':
             start_time = self.start_time + 10
-            learning = self.learning * 10
-            building = self.build_time * 10
-            testing = self.test_time * 10
-            teach_display = self.teach_display * 10
+            learning = self.learning * 5
+            building = self.build_time * 5
+            testing = self.test_time * 5
+            teach_display = self.teach_display * 5
 
             canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red")
             canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue")
@@ -76,10 +76,10 @@ class Mode:
     def calculate_start(self, n, stagger):
         participant_no = n - 1
         if len(stagger) == 1:
-            start_time = n * (stagger[0] * 10)
+            start_time = n * (stagger[0] * 5)
         else:
             if participant_no < len(stagger):
-                start_time = stagger[participant_no] * 10
+                start_time = stagger[participant_no] * 5
         print start_time
         return start_time
 
@@ -116,9 +116,11 @@ class Mode:
     def __repr__(self):
         return self.name
 
-imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 12, 3, [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38])
-emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 12, 3, [4])
-teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 10, 3, [4])
+''' CONFIG '''
+imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 14, 3, [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46])
+emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 14, 3, [4])
+teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 14, 3, [4])
+''' END CONFIG '''
 
 class win:
     def __init__(self):
@@ -220,7 +222,7 @@ class win:
 
 
     def draw_grid(self):
-        for x in range(0, 120):
+        for x in range(0, 160):
             if x%5 == 0:
                 line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="grey")
             else:
