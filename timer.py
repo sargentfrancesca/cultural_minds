@@ -74,36 +74,21 @@ class Mode:
 
     
     def calculate_start(self, n, stagger):
-        # print stagger
-        # if len(stagger) == 1:
-        #     start_time = n * (stagger[0] * 10)
-        # else:
-        #     if n < len(stagger):
-        #         print "[n]", n
-        #         print "[stagger]", stagger[n]
-        #         print "[start time]", n * (stagger[n] * 10)
-        #         print "[stagger * 10]", (stagger[n] * 10)
-        #         start_time = stagger[n] * 10
-        #     else:
-        #         print "[n]", n
-        #         if n == len(stagger):
-        #             print "SAME"
-        #         # print "[stagger]", stagger[n]
-        #         # print "[start time]", n * (stagger[n] * 10)
-        #         # print "[stagger * 10]", (stagger[n] * 10)
-        #         start_time = n * (stagger[-1] * 10)
-        #     # if n-1 <= len(stagger):
-        #     #     print n, len(stagger)
-        #     #     start_time = n * (stagger[n] * 10)                
-        #     # else:
-        #     #     start_time = n * (stagger[-1] * 10)
-            
-        return n * (stagger[-1] * 10)
+        participant_no = n - 1
+        if len(stagger) == 1:
+            start_time = n * (stagger[0] * 10)
+        else:
+            if participant_no < len(stagger):
+                start_time = stagger[participant_no] * 10
+        print start_time
+        return start_time
 
     def create_participant(self, name, n, stages, remove_first, stagger):
         participant = Participant(name)
-        
-        participant.start_time = self.calculate_start(n, stagger)
+        if n > 0:
+            participant.start_time = self.calculate_start(n, stagger)
+        else:
+            participant.start_time = 0
         if n < remove_first and n >= 0:
             if 'observation' in stages:                                     
                 participant.obs_time = 0
@@ -131,7 +116,7 @@ class Mode:
     def __repr__(self):
         return self.name
 
-imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 12, 3, [0, 2, 4])
+imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 12, 3, [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38])
 emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 12, 3, [4])
 teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 10, 3, [4])
 
