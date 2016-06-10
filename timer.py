@@ -5,6 +5,31 @@ from tkMessageBox import *
 
 import os,random,math,copy,string,time
 
+'''Timer option configuration'''
+imitation_observation = 6
+imitation_building = 5
+imitation_testing = 3
+imitation_particiants_no = 14
+imitation_remove_obs_from = 3
+imitation_start_times = [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46]
+
+emulation_learning = 2
+emulation_building = 5
+emulation_testing = 3
+emulation_display = 10
+emulation_particiants_no = 14
+emulation_remove_learning_from = 0
+emulation_start_times = [4]
+
+teaching_learning = 2
+teaching_building = 5
+teaching_testing = 3
+teaching_teach = 10
+teaching_particiants_no = 13
+teaching_remove_learning_from = 3
+teaching_start_times = [4]
+''' End Timer option config'''
+
 state = False
 timer = [0, 0, 0]
 secs = 0
@@ -117,9 +142,9 @@ class Mode:
         return self.name
 
 ''' CONFIG '''
-imitation = Mode('imitation',{'observation' : 6, 'building' : 5, 'testing' : 3 }, 14, 3, [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46])
-emulation = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 14, 3, [4])
-teaching = Mode('emulation',{'learning' : 2, 'building' : 5, 'testing' : 3 , 'teach_display' : 10}, 14, 3, [4])
+imitation = Mode('imitation',{'observation' : imitation_observation, 'building' : imitation_building, 'testing' : imitation_testing }, imitation_particiants_no, imitation_remove_obs_from, imitation_start_times)
+emulation = Mode('emulation',{'learning' : emulation_learning, 'building' : emulation_building, 'testing' : emulation_testing, 'teach_display' : emulation_display}, emulation_particiants_no, emulation_remove_learning_from, emulation_start_times)
+teaching = Mode('emulation',{'learning' : teaching_learning, 'building' : teaching_building, 'testing' : teaching_testing, 'teach_display' : teaching_teach}, teaching_particiants_no,teaching_remove_learning_from, teaching_start_times)
 ''' END CONFIG '''
 
 class win:
