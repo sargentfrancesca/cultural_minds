@@ -19,7 +19,7 @@ emulation_testing = 3
 emulation_display = 10
 emulation_particiants_no = 14
 emulation_remove_learning_from = 0
-emulation_start_times = [4]
+emulation_start_times = [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46]
 
 teaching_learning = 2
 teaching_building = 5
@@ -34,6 +34,25 @@ state = False
 timer = [0, 0, 0]
 secs = 0
 pattern = '{0:02d}:{1:02d}'
+
+def timings(participants, array):
+    times = []
+    staggers = len(array) - 1
+    constant = array[-1]
+    for i in range(0, staggers):
+        try:
+            previous = times[i-1]
+        except IndexError:
+            previous = 0
+        last = array[i] + previous
+        times.append(array[i] + previous)
+
+    times_length = len(times)
+    for x in range(times_length, participants):
+        previous = times[i-1]
+        times.append(previous + constant)
+
+    return times
 
 def convert_grid(old_value):
     old_max = 60
@@ -227,15 +246,22 @@ class win:
             if (timer[1] >= 60):
                 timer[0] += 1
                 timer[1] = 0
+
             timeString = pattern.format(timer[0], timer[1])          
             self.timeText.configure(text=timeString)
             self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 10), 1024, ((convert_grid(secs) / 60) + 10))
             timer_by_tag = self.canvas.find_withtag("timer")
             timer_coords = self.canvas.coords(timer_by_tag)
             closest = self.canvas.find_overlapping(timer_coords[0], timer_coords[1], timer_coords[2], timer_coords[3])
+            intersections = []
             for close in closest:
-                print self.canvas.gettags(close)
-            # print closest
+                tags = self.canvas.gettags(close)
+                if "timer" not in tags:
+                    if "grid" not in tags:
+                        intersections.append(tags)
+                        self.canvas.itemconfig(close, fill="grey")
+
+            print intersections
             
         self.root.after(10, self.tick)
 
@@ -263,9 +289,9 @@ class win:
     def draw_grid(self):
         for x in range(0, 160):
             if x%5 == 0:
-                line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="grey")
+                line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="grey", tags="grid")
             else:
-                line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="#ecf0f1")
+                line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="#ecf0f1", tags="grid")
 
     
 
