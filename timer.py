@@ -36,6 +36,45 @@ timer = [0, 0, 0]
 secs = 0
 pattern = '{0:02d}:{1:02d}'
 
+def draw_key(mode, canvas):
+    if mode == 'imitation':
+        start_time = 20
+        observation = 6 * 10          
+        building = 5 * 10
+        testing = 3 * 10
+        x = 800
+
+        canvas.create_rectangle(x - 50, start_time-10, x + 100, (start_time + observation + building) + 50, fill="#ecf0f1", outline="#ecf0f1", tags="timer")
+        canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red", tags="timer")
+        canvas.create_text(x + 50, (start_time) + (observation / 2), text="Observe", fill="black", tags="timer")
+        canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue", tags="timer")   
+        canvas.create_text(x + 50, (start_time + observation) + (building / 2), text="Make", fill="black", tags="timer")
+        canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow", tags="timer")
+        canvas.create_text(x + 50, (start_time + observation + building) + (testing / 2), text="Test", fill="black", tags="timer")
+
+    elif mode == 'emulation' or mode == 'teaching':
+        start_time = 20
+        learning = 2 * 10
+        building = 5 * 10
+        testing = 3 * 10
+        teach_display = 10 * 10
+        x = 800
+        if mode=='emulation':
+            tag = 'Display'
+        if mode=="teaching":
+            tag = 'Advice'
+
+        canvas.create_rectangle(x - 50, start_time-10, x + 100, (start_time + learning + building + testing + teach_display) + 20, fill="#ecf0f1", outline="#ecf0f1", tags="timer")
+        canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags="timer")
+        canvas.create_text(x + 50, start_time + (learning / 2), fill="black", text="Learn", tags="timer")
+        canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags="timer")
+        canvas.create_text(x + 50, (start_time + learning) + (building / 2), fill="black", text="Make", tags="timer")
+        canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow", tags="timer")
+        canvas.create_text(x + 50, (start_time + learning + building) + (testing / 2), fill="black", text="Test", tags="timer")
+        canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill="pink", tags="timer")
+        canvas.create_text(x + 50, (start_time + learning + building + testing) + (teach_display / 2), fill="black", text=tag, tags="timer")
+        
+
 def timings(participants, array):
     times = []
     staggers = len(array) - 1
@@ -80,9 +119,11 @@ class Participant:
         participant_type = (self.mode).capitalize()
         participant_number = i + 1
 
-        print participant_type, participant_number
+        print self.mode
+        draw_key(self.mode, canvas)
 
         if self.mode == 'imitation':
+            
             start_time = self.start_time + 10
             if participant_number == 2:
                 observation = 4 * 10
@@ -110,7 +151,7 @@ class Participant:
                 tag_fill = "pink"
             else:
                 tag = 'Advice'
-                tag_fill = "green"
+                tag_fill = "pink"
 
             canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags=[participant_type, participant_number, "Learn"])
             canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags=[participant_type, participant_number, "Make"])
@@ -135,7 +176,7 @@ class Mode:
 
         for n in range(0, n_participants):           
             participant = self.create_participant(name, n, stages, remove_first, stagger)
-            self.participants.append(participant)  
+            self.participants.append(participant)
 
     
     def calculate_start(self, n, stagger):
@@ -183,7 +224,7 @@ class Mode:
 ''' CONFIG '''
 imitation = Mode('imitation',{'observation' : imitation_observation, 'building' : imitation_building, 'testing' : imitation_testing }, imitation_particiants_no, imitation_remove_obs_from, imitation_start_times)
 emulation = Mode('emulation',{'learning' : emulation_learning, 'building' : emulation_building, 'testing' : emulation_testing, 'teach_display' : emulation_display}, emulation_particiants_no, emulation_remove_learning_from, emulation_start_times)
-teaching = Mode('emulation',{'learning' : teaching_learning, 'building' : teaching_building, 'testing' : teaching_testing, 'teach_display' : teaching_teach}, teaching_particiants_no,teaching_remove_learning_from, teaching_start_times)
+teaching = Mode('teaching',{'learning' : teaching_learning, 'building' : teaching_building, 'testing' : teaching_testing, 'teach_display' : teaching_teach}, teaching_particiants_no,teaching_remove_learning_from, teaching_start_times)
 ''' END CONFIG '''
 
 class win:
@@ -230,6 +271,7 @@ class win:
         self.tick()
 
         self.root.mainloop()
+
 
     def select_mode(self):
         mode = self.mode_var.get()
