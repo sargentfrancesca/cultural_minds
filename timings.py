@@ -17,4 +17,4 @@ def timings(participants, array):
         times.append(previous + constant)
 
     return times
-print timings(14, [0, 2, 4])
+print timings(10, [0, 2, 4])

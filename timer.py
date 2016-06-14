@@ -9,25 +9,26 @@ import os,random,math,copy,string,time
 imitation_observation = 6
 imitation_building = 5
 imitation_testing = 3
-imitation_particiants_no = 14
-imitation_remove_obs_from = 3
-imitation_start_times = [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46]
+imitation_particiants_no = 10
+imitation_remove_obs_from = 1
+# imitation_start_times = [0, 4, 8, 12, 16, 20, 24, 28, 32, 36]
+imitation_start_times = [0, 2, 6, 10, 14, 18, 22, 26, 30, 34]
 
 emulation_learning = 2
 emulation_building = 5
 emulation_testing = 3
 emulation_display = 10
-emulation_particiants_no = 14
-emulation_remove_learning_from = 0
-emulation_start_times = [0, 2, 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46]
+emulation_particiants_no = 10
+emulation_remove_learning_from = 2
+emulation_start_times = [5, 8, 13, 18, 23, 28, 33, 38, 43, 48]
 
 teaching_learning = 2
 teaching_building = 5
 teaching_testing = 3
 teaching_teach = 10
-teaching_particiants_no = 13
-teaching_remove_learning_from = 3
-teaching_start_times = [4]
+teaching_particiants_no = 10
+teaching_remove_learning_from = 2
+teaching_start_times = [5, 8, 13, 18, 23, 28, 33, 38, 43, 48]
 ''' End Timer option config'''
 
 state = False
@@ -57,7 +58,7 @@ def timings(participants, array):
 def convert_grid(old_value):
     old_max = 60
     old_min = 0
-    new_max = 300
+    new_max = 600
     new_min = 0
     old_range = float(old_max - old_min)
     new_range = float(new_max - new_min)
@@ -83,30 +84,42 @@ class Participant:
 
         if self.mode == 'imitation':
             start_time = self.start_time + 10
-            observation = self.obs_time * 5
-            
-            building = self.build_time * 5
-            testing = self.test_time * 5
+            if participant_number == 2:
+                observation = 4 * 10
+            else:
+                observation = self.obs_time * 10          
+            building = self.build_time * 10
+            testing = self.test_time * 10
 
 
-            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red", tags=[participant_type, participant_number, "Observation"])
-            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue", tags=[participant_type, participant_number, "Building"])
-            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Testing"])
+            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red", tags=[participant_type, participant_number, "Observe"])
+            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue", tags=[participant_type, participant_number, "Make"])
+            if observation != 0:
+                canvas.create_text(x, (start_time + observation) + (observation / 2), text=participant_number, fill="white")
+            else:
+                canvas.create_text(x, building/2, text=participant_number, fill="white")
+            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Test"])
         elif self.mode == 'emulation' or self.mode == 'teaching':
             start_time = self.start_time + 10
-            learning = self.learning * 5
-            building = self.build_time * 5
-            testing = self.test_time * 5
-            teach_display = self.teach_display * 5
+            learning = self.learning * 10
+            building = self.build_time * 10
+            testing = self.test_time * 10
+            teach_display = self.teach_display * 10
             if self.mode=='emulation':
                 tag = 'Display'
+                tag_fill = "pink"
             else:
-                tag = 'Teaching'
+                tag = 'Advice'
+                tag_fill = "green"
 
-            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags=[participant_type, participant_number, "Learning"])
-            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags=[participant_type, participant_number, "Building"])
-            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Testing"])
-            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill="pink", tags=[participant_type, participant_number, tag])
+            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags=[participant_type, participant_number, "Learn"])
+            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags=[participant_type, participant_number, "Make"])
+            if learning != 0:
+                canvas.create_text(x, (start_time + learning) + (building / 2), text=participant_number, fill="white")
+            else:
+                canvas.create_text(x, (start_time + learning) + (building/2), text=participant_number, fill="white")
+            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Test"])
+            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill=tag_fill, tags=[participant_type, participant_number, tag])
 
     def __repr__(self):
         return '< {} >'.format(self.mode)
@@ -128,10 +141,10 @@ class Mode:
     def calculate_start(self, n, stagger):
         participant_no = n - 1
         if len(stagger) == 1:
-            start_time = n * (stagger[0] * 5)
+            start_time = n * (stagger[0] * 10)
         else:
             if participant_no < len(stagger):
-                start_time = stagger[participant_no] * 5
+                start_time = stagger[participant_no] * 10
         return start_time
 
     def create_participant(self, name, n, stages, remove_first, stagger):
@@ -287,7 +300,7 @@ class win:
 
 
     def draw_grid(self):
-        for x in range(0, 160):
+        for x in range(0, 120):
             if x%5 == 0:
                 line = self.canvas.create_line(0, convert_grid(x), 1024, convert_grid(x), width=1, fill="grey", tags="grid")
             else:
