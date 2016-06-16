@@ -36,6 +36,9 @@ timer = [0, 0, 0]
 secs = 0
 pattern = '{0:02d}:{1:02d}'
 
+def draw_stage(participant, i, stage, canvas):
+    canvas.create_text(100, (i * 10) + 100, text="Participant {} : {} Stage".format(participant, stage), fill="black", tags=["timer", "label"])
+
 def draw_key(mode, canvas):
     if mode == 'imitation':
         start_time = 20
@@ -132,14 +135,14 @@ class Participant:
             building = self.build_time * 10
             testing = self.test_time * 10
 
-
-            canvas.create_line(x, start_time, x, start_time + observation, width=20, fill="red", tags=[participant_type, participant_number, "Observe"])
-            canvas.create_line(x, (start_time + observation), x, (start_time + observation + building), width=20, fill="blue", tags=[participant_type, participant_number, "Make"])
+            canvas.create_rectangle(x-10, start_time, x+10, start_time + observation, fill="red", outline="red", tags=[participant_type, participant_number, "Observe"])
+            canvas.create_rectangle(x-10, start_time + observation, x+10, start_time + observation + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
             if observation != 0:
-                canvas.create_text(x, (start_time + observation) + (observation / 2), text=participant_number, fill="white")
+                canvas.create_text(x, (start_time + observation) + (observation / 2), text=participant_number, fill="white", tags="timer")
             else:
-                canvas.create_text(x, building/2, text=participant_number, fill="white")
-            canvas.create_line(x, (start_time + observation + building), x, (start_time + observation + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Test"])
+                canvas.create_text(x, building/2, text=participant_number, fill="white", tags="timer")
+            canvas.create_rectangle(x-10, start_time + observation + building, x+10, start_time + observation + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
+        
         elif self.mode == 'emulation' or self.mode == 'teaching':
             start_time = self.start_time + 10
             learning = self.learning * 10
@@ -153,14 +156,15 @@ class Participant:
                 tag = 'Advice'
                 tag_fill = "pink"
 
-            canvas.create_line(x, start_time, x, start_time + learning, width=20, fill="red", tags=[participant_type, participant_number, "Learn"])
-            canvas.create_line(x, (start_time + learning), x, (start_time + learning + building), width=20, fill="blue", tags=[participant_type, participant_number, "Make"])
+            canvas.create_rectangle(x-10, start_time, x+10, start_time + learning, fill="red", outline="red", tags=[participant_type, participant_number, "Learn"])
+            canvas.create_rectangle(x-10, start_time + learning, x+10, start_time + learning + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
+            
             if learning != 0:
-                canvas.create_text(x, (start_time + learning) + (building / 2), text=participant_number, fill="white")
+                canvas.create_text(x, (start_time + learning) + (building / 2), text=participant_number, fill="white", tags="timer")
             else:
-                canvas.create_text(x, (start_time + learning) + (building/2), text=participant_number, fill="white")
-            canvas.create_line(x, (start_time + learning + building), x, (start_time + learning + building + testing), width=20, fill="yellow", tags=[participant_type, participant_number, "Test"])
-            canvas.create_line(x, (start_time + learning + building + testing), x, (start_time + learning + building + testing + teach_display), width=20, fill=tag_fill, tags=[participant_type, participant_number, tag])
+                canvas.create_text(x, (start_time + learning) + (building/2), text=participant_number, fill="white", tags="timer")
+            canvas.create_rectangle(x-10, start_time + learning + building, x+10, start_time + learning + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
+            canvas.create_rectangle(x-10, start_time + learning + building + testing, x+10, start_time + learning + building + testing + teach_display, fill="pink", outline="pink", tags=[participant_type, participant_number, tag])
 
     def __repr__(self):
         return '< {} >'.format(self.mode)
@@ -305,18 +309,31 @@ class win:
             timeString = pattern.format(timer[0], timer[1])          
             self.timeText.configure(text=timeString)
             self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 10), 1024, ((convert_grid(secs) / 60) + 10))
-            timer_by_tag = self.canvas.find_withtag("timer")
+            timer_by_tag = self.canvas.find_withtag("line")
             timer_coords = self.canvas.coords(timer_by_tag)
             closest = self.canvas.find_overlapping(timer_coords[0], timer_coords[1], timer_coords[2], timer_coords[3])
+            finished = self.canvas.find_enclosed(0, 0, timer_coords[2], timer_coords[3])
             intersections = []
-            for close in closest:
+            for finish in finished:
+                tags = self.canvas.gettags(finish)
+                if "timer" not in tags:
+                    if "grid" not in tags:
+                        if "line" not in tags:
+                            coords = self.canvas.coords(finish)
+                            object_bound = coords[3]
+                            timer_bound = timer_coords[1]
+                            if timer_bound > object_bound:
+                                self.canvas.itemconfig(finish, outline="grey", fill="grey")
+
+            for i, close in enumerate(closest):
                 tags = self.canvas.gettags(close)
                 if "timer" not in tags:
                     if "grid" not in tags:
-                        intersections.append(tags)
-                        self.canvas.itemconfig(close, fill="grey")
+                        if "line" not in tags:
+                            if "label" not in tags:
+                                intersections.append(tags)
+                                self.canvas.itemconfig(close, outline="green")
 
-            print intersections
             
         self.root.after(10, self.tick)
 
@@ -338,7 +355,7 @@ class win:
         self.create_line()
 
     def create_line(self):
-        self.timerline = self.canvas.create_line(0, 10, 1024, 10, width=1, fill="green", tags="timer")
+        self.timerline = self.canvas.create_line(0, 10, 1024, 10, width=1, fill="green", tags=["timer", "line"])
 
 
     def draw_grid(self):
