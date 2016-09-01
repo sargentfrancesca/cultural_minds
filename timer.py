@@ -2,8 +2,8 @@
 from Tkinter import *
 from tkFileDialog import *
 from tkMessageBox import *
-
-import os,random,math,copy,string,time
+from threading import Timer,Thread,Event
+import time
 
 '''Timer option configuration'''
 imitation_observation = 6
@@ -106,6 +106,41 @@ def convert_grid(old_value):
     new_range = float(new_max - new_min)
     value = float(((float((old_value - old_min) * new_range)) / old_range)) + new_min
     return float(value) + 10
+
+class RealTimer():
+
+   def __init__(self,t,hFunction):
+      self.t=t
+      self.hFunction = hFunction
+      self.thread = Timer(self.t,self.handle_function)
+
+   def handle_function(self):
+      self.hFunction()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+   def start(self):
+      global start_time
+      start_time = time.time()
+      self.thread.start()
+
+
+   def cancel(self):
+      self.thread.cancel()
+
+def rec_time():
+    global elapsed
+    elapsed = time.time() - start_time
+
+    global time_string
+    m, s = divmod(elapsed, 60)
+    h, m = divmod(m, 60)
+    time_string = "%d:%02d:%02d" % (h, m, s)
+
+    return elapsed
+
+t = RealTimer(1,rec_time)
+t.start()
 
 class Participant:
     def __init__(self, mode):
@@ -291,12 +326,13 @@ class win:
         else:
             imitation.display_participants(self.canvas)
         self.create_line()
-    
+
     def tick(self):
         if (state):
             global timer
             global secs
 
+            print secs 
             timer[2] += 1
             if (timer[2] >= 100):
                 timer[2] = 0
@@ -305,6 +341,7 @@ class win:
             if (timer[1] >= 60):
                 timer[0] += 1
                 timer[1] = 0
+
 
             timeString = pattern.format(timer[0], timer[1])          
             self.timeText.configure(text=timeString)
