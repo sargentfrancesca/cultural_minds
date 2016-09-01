@@ -107,6 +107,11 @@ def convert_grid(old_value):
     value = float(((float((old_value - old_min) * new_range)) / old_range)) + new_min
     return float(value) + 10
 
+global paused
+global offset
+paused = False
+offset = 0
+
 class RealTimer():
 
    def __init__(self,t,hFunction):
@@ -120,27 +125,55 @@ class RealTimer():
       self.thread.start()
 
    def start(self):
+      global state
+      global paused
       global start_time
+      global elapsed
       start_time = time.time()
+
+      state = True      
+
       self.thread.start()
 
 
+   def pause(self):
+      global state
+      global paused
+      state = False
+      paused = True      
+      global pause_time
+      pause_time = elapsed
+      self.thread.cancel()
+
    def cancel(self):
+      global state
+      global paused
+      global offset
+      state = False
+      paused = False
+      offset = 0
       self.thread.cancel()
 
 def rec_time():
     global elapsed
-    elapsed = time.time() - start_time
+    global offset
+    global paused
+    
+
+    if paused:
+        offset = pause_time
+        paused = False
+
+    elapsed = (time.time() - start_time) + offset
 
     global time_string
     m, s = divmod(elapsed, 60)
     h, m = divmod(m, 60)
     time_string = "%d:%02d:%02d" % (h, m, s)
 
+    print elapsed, time_string
     return elapsed
 
-# t = RealTimer(1,rec_time)
-# t.start()
 
 class Participant:
     def __init__(self, mode):
@@ -275,6 +308,8 @@ class win:
         f=Frame(self.root)
         f.pack()
 
+        
+
         # make the menu
         self.root.option_add('*tearOff', FALSE)
         menubar = Menu(self.root)
@@ -307,6 +342,7 @@ class win:
 
         imitation.display_participants(self.canvas)
         self.create_line()
+        
         self.tick()
 
         self.root.mainloop()
@@ -332,7 +368,6 @@ class win:
             global timer
             global secs
 
-            print secs 
             timer[2] += 1
             if (timer[2] >= 100):
                 timer[2] = 0
@@ -377,10 +412,13 @@ class win:
     def start(self):
         global state
         state = True
+        self.t = RealTimer(1,rec_time)
+        self.t.start()
 
     def pause(self):
         global state
         state = False
+        self.t.pause()
 
     def reset(self):
         global timer
@@ -389,6 +427,7 @@ class win:
         secs = 0
         self.timeText.configure(text='00:00')
         self.canvas.delete(self.timerline)
+        self.t.cancel()
         self.create_line()
 
     def create_line(self):
