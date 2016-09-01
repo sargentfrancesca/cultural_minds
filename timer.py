@@ -139,8 +139,8 @@ def rec_time():
 
     return elapsed
 
-t = RealTimer(1,rec_time)
-t.start()
+# t = RealTimer(1,rec_time)
+# t.start()
 
 class Participant:
     def __init__(self, mode):
