@@ -154,26 +154,6 @@ class RealTimer():
       offset = 0
       self.thread.cancel()
 
-def rec_time():
-    global elapsed
-    global offset
-    global paused
-    
-
-    if paused:
-        offset = pause_time
-        paused = False
-
-    elapsed = (time.time() - start_time) + offset
-
-    global time_string
-    m, s = divmod(elapsed, 60)
-    h, m = divmod(m, 60)
-    time_string = "%d:%02d:%02d" % (h, m, s)
-
-    print elapsed, time_string
-    return elapsed
-
 
 class Participant:
     def __init__(self, mode):
@@ -309,7 +289,6 @@ class win:
         f.pack()
 
         
-
         # make the menu
         self.root.option_add('*tearOff', FALSE)
         menubar = Menu(self.root)
@@ -343,7 +322,7 @@ class win:
         imitation.display_participants(self.canvas)
         self.create_line()
         
-        self.tick()
+        # self.tick()
 
         self.root.mainloop()
 
@@ -363,56 +342,58 @@ class win:
             imitation.display_participants(self.canvas)
         self.create_line()
 
-    def tick(self):
-        if (state):
-            global timer
-            global secs
+    def rec_time(self):
+        global elapsed
+        global offset
+        global paused
+        
 
-            timer[2] += 1
-            if (timer[2] >= 100):
-                timer[2] = 0
-                timer[1] += 1 
-                secs += 1           
-            if (timer[1] >= 60):
-                timer[0] += 1
-                timer[1] = 0
+        if paused:
+            offset = pause_time
+            paused = False
 
+        elapsed = (time.time() - start_time) + offset
 
-            timeString = pattern.format(timer[0], timer[1])          
-            self.timeText.configure(text=timeString)
-            self.canvas.coords(self.timerline, 0, ((convert_grid(secs) / 60) + 10), 1024, ((convert_grid(secs) / 60) + 10))
-            timer_by_tag = self.canvas.find_withtag("line")
-            timer_coords = self.canvas.coords(timer_by_tag)
-            closest = self.canvas.find_overlapping(timer_coords[0], timer_coords[1], timer_coords[2], timer_coords[3])
-            finished = self.canvas.find_enclosed(0, 0, timer_coords[2], timer_coords[3])
-            intersections = []
-            for finish in finished:
-                tags = self.canvas.gettags(finish)
-                if "timer" not in tags:
-                    if "grid" not in tags:
-                        if "line" not in tags:
-                            coords = self.canvas.coords(finish)
-                            object_bound = coords[3]
-                            timer_bound = timer_coords[1]
-                            if timer_bound > object_bound:
-                                self.canvas.itemconfig(finish, outline="grey", fill="grey")
+        global time_string
+        m, s = divmod(elapsed, 60)
+        h, m = divmod(m, 60)
+        time_string = "%d:%02d:%02d" % (h, m, s)
 
-            for i, close in enumerate(closest):
-                tags = self.canvas.gettags(close)
-                if "timer" not in tags:
-                    if "grid" not in tags:
-                        if "line" not in tags:
-                            if "label" not in tags:
-                                intersections.append(tags)
-                                self.canvas.itemconfig(close, outline="green")
+        print "Real Time", elapsed, time_string
 
-            
-        self.root.after(10, self.tick)
+        self.timeText.configure(text=time_string)
+        self.canvas.coords(self.timerline, 0, ((convert_grid(elapsed) / 60) + 10), 1024, ((convert_grid(elapsed) / 60) + 10))
+        timer_by_tag = self.canvas.find_withtag("line")
+        timer_coords = self.canvas.coords(timer_by_tag)
+        closest = self.canvas.find_overlapping(timer_coords[0], timer_coords[1], timer_coords[2], timer_coords[3])
+        finished = self.canvas.find_enclosed(0, 0, timer_coords[2], timer_coords[3])
+        intersections = []
+        for finish in finished:
+            tags = self.canvas.gettags(finish)
+            if "timer" not in tags:
+                if "grid" not in tags:
+                    if "line" not in tags:
+                        coords = self.canvas.coords(finish)
+                        object_bound = coords[3]
+                        timer_bound = timer_coords[1]
+                        if timer_bound > object_bound:
+                            self.canvas.itemconfig(finish, outline="grey", fill="grey")
+
+        for i, close in enumerate(closest):
+            tags = self.canvas.gettags(close)
+            if "timer" not in tags:
+                if "grid" not in tags:
+                    if "line" not in tags:
+                        if "label" not in tags:
+                            intersections.append(tags)
+                            self.canvas.itemconfig(close, outline="green")
+
+        return elapsed
 
     def start(self):
         global state
         state = True
-        self.t = RealTimer(1,rec_time)
+        self.t = RealTimer(1,self.rec_time)
         self.t.start()
 
     def pause(self):
@@ -425,7 +406,7 @@ class win:
         global secs
         timer = [0, 0, 0]
         secs = 0
-        self.timeText.configure(text='00:00')
+        self.timeText.configure(text='00:00:00')
         self.canvas.delete(self.timerline)
         self.t.cancel()
         self.create_line()
