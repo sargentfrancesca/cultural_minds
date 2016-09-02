@@ -408,7 +408,11 @@ class win:
         secs = 0
         self.timeText.configure(text='00:00:00')
         self.canvas.delete(self.timerline)
-        self.t.cancel()
+        try:
+            self.t.cancel()
+        except AttributeError:
+            pass
+
         self.create_line()
 
     def create_line(self):
