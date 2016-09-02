@@ -183,13 +183,13 @@ class Participant:
             building = self.build_time * 10
             testing = self.test_time * 10
 
-            canvas.create_rectangle(x-10, start_time, x+10, start_time + observation, fill="red", outline="red", tags=[participant_type, participant_number, "Observe"])
-            canvas.create_rectangle(x-10, start_time + observation, x+10, start_time + observation + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
+            canvas.create_rectangle(x+30, start_time, x+60, start_time + observation, fill="red", outline="red", tags=[participant_type, participant_number, "Observe"])
+            canvas.create_rectangle(x+30, start_time + observation, x+60, start_time + observation + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
             if observation != 0:
-                canvas.create_text(x, (start_time + observation) + (observation / 2), text=participant_number, fill="white", tags="timer")
+                canvas.create_text(x+45, (start_time + observation) + (observation / 2), text=participant_number, fill="white", tags="timer", font=("Purisa", 24))
             else:
-                canvas.create_text(x, building/2, text=participant_number, fill="white", tags="timer")
-            canvas.create_rectangle(x-10, start_time + observation + building, x+10, start_time + observation + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
+                canvas.create_text(x+45, building/2, text=participant_number, fill="white", tags="timer", font=("Purisa", 24))
+            canvas.create_rectangle(x+30, start_time + observation + building, x+60, start_time + observation + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
         
         elif self.mode == 'emulation' or self.mode == 'teaching':
             start_time = self.start_time + 10
@@ -204,15 +204,15 @@ class Participant:
                 tag = 'Advice'
                 tag_fill = "pink"
 
-            canvas.create_rectangle(x-10, start_time, x+10, start_time + learning, fill="red", outline="red", tags=[participant_type, participant_number, "Learn"])
-            canvas.create_rectangle(x-10, start_time + learning, x+10, start_time + learning + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
+            canvas.create_rectangle(x+30, start_time, x+60, start_time + learning, fill="red", outline="red", tags=[participant_type, participant_number, "Learn"])
+            canvas.create_rectangle(x+30, start_time + learning, x+60, start_time + learning + building, fill="blue", outline="blue", tags=[participant_type, participant_number, "Make"])
             
             if learning != 0:
-                canvas.create_text(x, (start_time + learning) + (building / 2), text=participant_number, fill="white", tags="timer")
+                canvas.create_text(x+45, (start_time + learning) + (building / 2), text=participant_number, fill="white", tags="timer", font=("Purisa", 24))
             else:
-                canvas.create_text(x, (start_time + learning) + (building/2), text=participant_number, fill="white", tags="timer")
-            canvas.create_rectangle(x-10, start_time + learning + building, x+10, start_time + learning + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
-            canvas.create_rectangle(x-10, start_time + learning + building + testing, x+10, start_time + learning + building + testing + teach_display, fill="pink", outline="pink", tags=[participant_type, participant_number, tag])
+                canvas.create_text(x+45, (start_time + learning) + (building/2), text=participant_number, fill="white", tags="timer", font=("Purisa", 24))
+            canvas.create_rectangle(x+30, start_time + learning + building, x+60, start_time + learning + building + testing, fill="yellow", outline="yellow", tags=[participant_type, participant_number, "Test"])
+            canvas.create_rectangle(x+30, start_time + learning + building + testing, x+60, start_time + learning + building + testing + teach_display, fill="pink", outline="pink", tags=[participant_type, participant_number, tag])
 
     def __repr__(self):
         return '< {} >'.format(self.mode)
