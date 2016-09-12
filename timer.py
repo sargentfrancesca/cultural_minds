@@ -312,7 +312,7 @@ class win:
         self.run_button = Button(f, text="OK", command=self.select_mode)
         self.run_button.grid(row=0, column=2, sticky="we")
         
-        self.timeText = Label(f, text="00:00")
+        self.timeText = Label(f, text="00:00", font=("Helvetica", 24))
         self.timeText.grid(row=0, column=3, sticky="we")     
         self.startButton = Button(f, fg='blue', text='Start', command=self.start).grid(row=0, column=5, sticky="we")
         self.pauseButton = Button(f, fg='blue', text='Pause', command=self.pause).grid(row=0, column=6, sticky="we")
