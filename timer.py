@@ -170,7 +170,6 @@ class Participant:
         participant_type = (self.mode).capitalize()
         participant_number = i + 1
 
-        print self.mode
         draw_key(self.mode, canvas)
 
         if self.mode == 'imitation':
@@ -359,7 +358,6 @@ class win:
         h, m = divmod(m, 60)
         time_string = "%d:%02d:%02d" % (h, m, s)
 
-        print "Real Time", elapsed, time_string
 
         self.timeText.configure(text=time_string)
         self.canvas.coords(self.timerline, 0, ((convert_grid(elapsed) / 60) + 10), 1024, ((convert_grid(elapsed) / 60) + 10))
